@@ -388,7 +388,7 @@ import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
    ========================================================================================= */
 const NAME = 'Jero';
 const NARRATION = {
-  's01-universo': `¡Hola, ${NAME}! ¡Mira cuántas estrellas! Hoy vamos a hacer un viaje increíble: desde el universo hasta adentro de tu cuerpo. Vamos a usar dos gafas mágicas: las gafas de los sabios de la antigua China, y las gafas de los científicos. ¿Listo? ¡Vamos!`,
+  's01-universo': `¡Hola, ${NAME}! ¡Mira cuántas estrellas! Hoy vamos a viajar desde el universo hasta adentro de tu cuerpo, con dos gafas mágicas: las de los sabios de la antigua China y las de los científicos.`,
   's02-sabios': 'Hace más de dos mil años, en la antigua China, unos sabios miraban con mucha atención los ríos, el viento y la luna. Y se preguntaron: ¿qué hace que un cuerpo esté vivo? Ellos imaginaron una energía invisible que corre por dentro, y le pusieron un nombre cortito: chi.',
   's03-meridianos': `Para los sabios, el chi viaja por caminos llamados meridianos, como ríos de luz por tus brazos, tus piernas y tu pancita. ¡Ellos contaban doce caminos principales! ${NAME}, toca los caminos dorados para verlos brillar.`,
   's04-puntos': 'En esos caminos hay puntos especiales, como las estaciones de un tren. El acupunturista pone ahí unas agujas finitas, finitas, casi tan delgadas como un pelo. Se sienten como un piquetito. Toca un punto brillante para conocerlo.',
@@ -1061,7 +1061,7 @@ const yaw = { cur: 0, goal: 0, base: 0, user: -1e9, lock: false };
    ========================================================================================= */
 let actx = null, master = null, amb = null, muted = false, captionsOn = true;
 const audioCache = {};
-function getAudio(id){ if (!audioCache[id]){ const a = new Audio('audio/' + id + '.mp3'); a.preload = 'auto'; audioCache[id] = a; } return audioCache[id]; }
+function getAudio(src){ if (!audioCache[src]){ const a = new Audio(src); a.preload = 'auto'; audioCache[src] = a; } return audioCache[src]; }
 const voice = new Audio(); voice.preload = 'auto';
 let curAudio = null, narrTok = 0, resumeVoice = false;
 function initAudio(){
@@ -1086,9 +1086,12 @@ function sparkle(){ [0, 2, 4, 5, 6].forEach((n, k) => chime(PENTA[n], { delay: k
 function whoosh(){ if (!actx || muted) return; const t = actx.currentTime; const len = actx.sampleRate; const buf = actx.createBuffer(1, len, actx.sampleRate); const d = buf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1; const s = actx.createBufferSource(); s.buffer = buf; const f = actx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 1.4; f.frequency.setValueAtTime(260, t); f.frequency.exponentialRampToValueAtTime(2400, t + .7); const g = actx.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.12, t + .25); g.gain.exponentialRampToValueAtTime(.0001, t + .95); s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t + 1); }
 /* --- voz del dispositivo (Web Speech) con la mejor voz en español disponible; respaldo: audios grabados --- */
 const HAS_TTS = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
-const VOICE = { list: [], sel: null, uri: null, rate: .95, mode: 'tts', forced: false };
-try { const pf = JSON.parse(localStorage.getItem('agujas-voz') || '{}'); VOICE.uri = pf.uri || null; VOICE.rate = +pf.rate || .95; if (pf.uri === '__mp3') VOICE.forced = true; } catch (e) {}
-function savePrefs(){ try { localStorage.setItem('agujas-voz', JSON.stringify({ uri: VOICE.forced ? '__mp3' : (VOICE.sel && VOICE.sel.voiceURI), rate: VOICE.rate })); } catch (e) {} }
+/* Voz de cuento grabada (audio/voz/<id>.mp3): id -> segundo en que empieza cada frase, para el subtítulo y las escenas */
+const REC = {};
+const HAS_REC = Object.keys(REC).length > 0;
+const VOICE = { list: [], sel: null, pick: null, rate: .95, mode: 'tts' }; // pick: '__rec' | '__mp3' | voiceURI | null
+try { const pf = JSON.parse(localStorage.getItem('agujas-voz2') || '{}'); VOICE.pick = pf.pick || null; VOICE.rate = +pf.rate || .95; } catch (e) {}
+function savePrefs(){ try { localStorage.setItem('agujas-voz2', JSON.stringify({ pick: VOICE.pick, rate: VOICE.rate })); } catch (e) {} }
 function scoreVoice(v){
   const n = (v.name + ' ' + v.voiceURI).toLowerCase(), l = (v.lang || '').toLowerCase().replace('_', '-'); let sc = 0;
   if (/natural|neural|premium|enhanced|mejorad|online|wavenet|studio/.test(n)) sc += 50;
@@ -1100,20 +1103,27 @@ function scoreVoice(v){
   return sc;
 }
 function refreshVoices(){
-  if (!HAS_TTS) return;
-  const all = speechSynthesis.getVoices().filter((v) => /^es/i.test(v.lang || '')); all.sort((a, b) => scoreVoice(b) - scoreVoice(a));
-  VOICE.list = all; VOICE.sel = all.find((v) => v.voiceURI === VOICE.uri) || all[0] || null;
-  VOICE.mode = (!VOICE.forced && VOICE.sel) ? 'tts' : 'mp3';
+  const all = HAS_TTS ? speechSynthesis.getVoices().filter((v) => /^es/i.test(v.lang || '')) : []; all.sort((a, b) => scoreVoice(b) - scoreVoice(a));
+  const dev = all.find((v) => v.voiceURI === VOICE.pick);
+  VOICE.list = all; VOICE.sel = dev || all[0] || null;
+  if (VOICE.pick === '__rec' && HAS_REC) VOICE.mode = 'rec';
+  else if (dev) VOICE.mode = 'tts';
+  else if (VOICE.pick === '__mp3' && !HAS_REC) VOICE.mode = 'mp3';
+  else VOICE.mode = HAS_REC ? 'rec' : (VOICE.sel ? 'tts' : 'mp3');
   fillVoiceUI();
 }
 function fillVoiceUI(){
   const sel = $('#voiceSel'); if (!sel) return; sel.innerHTML = '';
-  for (const v of VOICE.list){ const o = document.createElement('option'); o.value = v.voiceURI; o.textContent = v.name.replace(/\s*\(.*?\)\s*$/, '') + ' · ' + v.lang; if (VOICE.mode === 'tts' && VOICE.sel === v) o.selected = true; sel.appendChild(o); }
-  const o = document.createElement('option'); o.value = '__mp3'; o.textContent = 'Voz grabada con IA (sin el nombre de Jero)'; if (VOICE.mode === 'mp3') o.selected = true; sel.appendChild(o);
-  if (!VOICE.list.length) $('#voiceNote').textContent = 'Este dispositivo no tiene voces en español, así que se usa la narración grabada. En iPhone o iPad puedes agregar una en Ajustes › Accesibilidad › Contenido leído › Voces › Español.';
+  const add = (val, txt, on) => { const o = document.createElement('option'); o.value = val; o.textContent = txt; if (on) o.selected = true; sel.appendChild(o); };
+  if (HAS_REC) add('__rec', 'Voz de cuento (recomendada)', VOICE.mode === 'rec');
+  for (const v of VOICE.list) add(v.voiceURI, (HAS_REC ? 'Del dispositivo: ' : '') + v.name.replace(/\s*\(.*?\)\s*$/, '') + ' · ' + v.lang, VOICE.mode === 'tts' && VOICE.sel === v);
+  if (!HAS_REC) add('__mp3', 'Voz grabada con IA (sin el nombre de Jero)', VOICE.mode === 'mp3');
+  const note = $('#voiceNote');
+  if (HAS_REC) note.textContent = `La voz de cuento está grabada con IA (ElevenLabs), le habla a ${NAME} por su nombre y suena igual en todos los dispositivos. Si prefieres, puedes elegir una voz de este dispositivo.`;
+  else if (!VOICE.list.length) note.textContent = 'Este dispositivo no tiene voces en español, así que se usa la narración grabada. En iPhone o iPad puedes agregar una en Ajustes › Accesibilidad › Contenido leído › Voces › Español.';
   const r = $('#rateSel'); if (r) r.value = String(VOICE.rate);
 }
-if (HAS_TTS){ refreshVoices(); speechSynthesis.onvoiceschanged = refreshVoices; }
+refreshVoices(); if (HAS_TTS) speechSynthesis.onvoiceschanged = refreshVoices;
 function splitSentences(t){ return (t.match(/[^.!?…]+[.!?…]+[»”"]?|[^.!?…]+$/g) || [t]).map((x) => x.trim()).filter(Boolean); }
 const keepUtter = [];
 function speakParts(parts, tok, onEnd, onCue, full){
@@ -1133,10 +1143,28 @@ function speakParts(parts, tok, onEnd, onCue, full){
   };
   next();
 }
+function playRec(id, tok, onEnd, onCue){
+  const text = NARRATION[id], parts = splitSentences(text), t0 = REC[id];
+  const times = t0 && t0.length === parts.length ? t0 : null;
+  const a = voice; curAudio = a; a.defaultPlaybackRate = VOICE.rate / .95; a.src = 'audio/voz/' + id + '.mp3'; a.playbackRate = VOICE.rate / .95; a.muted = muted; duck(true);
+  const at = (t) => {
+    if (times){ let j = 0; while (j + 1 < times.length && times[j + 1] <= t + .05) j++; return j; }
+    const d = a.duration; if (!(d > 0)) return 0; let acc = 0, j = 0;
+    for (; j < parts.length - 1; j++){ acc += parts[j].length + 1; if (acc / text.length > t / d) break; }
+    return j;
+  };
+  let k = -1;
+  const step = () => { if (tok !== narrTok) return; const j = at(a.currentTime); if (j <= k) return; while (k < j){ k++; onCue && onCue(k, parts[k]); } setCaption(text, parts, k); };
+  step(); a.ontimeupdate = step;
+  a.onended = () => { if (tok !== narrTok) return; a.ontimeupdate = null; duck(false); onEnd && onEnd(); };
+  a.onerror = () => { if (tok !== narrTok) return; a.ontimeupdate = null; if (VOICE.sel) speakParts(parts.slice(Math.max(k, 0)), tok, onEnd, null, null); else { duck(false); onEnd && later(4000, onEnd, true); } };
+  const pr = a.play(); if (pr && pr.catch) pr.catch(() => { if (tok === narrTok){ duck(false); onEnd && later(4000, onEnd, true); } });
+}
 function narrate(id, onEnd, onCue){
   const wasBusy = HAS_TTS && (speechSynthesis.speaking || speechSynthesis.pending);
   stopNarration(); const tok = ++narrTok;
-  if (VOICE.mode === 'tts' && VOICE.sel){
+  if (VOICE.mode === 'rec' && REC[id]) return playRec(id, tok, onEnd, onCue);
+  if (VOICE.mode !== 'mp3' && VOICE.sel){
     const text = NARRATION[id]; const parts = splitSentences(text); setCaption(text, parts, 0);
     if (wasBusy) setTimeout(() => speakParts(parts, tok, onEnd, onCue, text), 90); else speakParts(parts, tok, onEnd, onCue, text);
     return;
@@ -1149,7 +1177,7 @@ function narrate(id, onEnd, onCue){
   a.onerror = () => { if (tok !== narrTok) return; duck(false); onEnd && later(4000, onEnd, true); };
   const pr = a.play(); if (pr && pr.catch) pr.catch(() => { if (tok === narrTok){ duck(false); onEnd && later(4000, onEnd, true); } });
 }
-function stopNarration(){ narrTok++; if (curAudio){ curAudio.pause(); curAudio.onended = curAudio.onerror = null; } if (HAS_TTS) speechSynthesis.cancel(); duck(false); }
+function stopNarration(){ narrTok++; if (curAudio){ curAudio.pause(); curAudio.onended = curAudio.onerror = curAudio.ontimeupdate = null; } if (HAS_TTS) speechSynthesis.cancel(); duck(false); }
 
 /* =========================================================================================
    HUD
@@ -1318,7 +1346,7 @@ const SCENES = [
     tap(){ shootingStar(); chime(PENTA[(rand() * 7) | 0], { vol: .1 }); } },
   { id: 's02-sabios', lens: 'sabios', lensBody: 'sabios', chip: 'Mirada 1 · Los sabios de China', sway: true, drag: true,
     fact: { eyebrow: 'Mirada 1 · La tradición china', title: 'El qì <span class="han">气</span>', body: 'Se escribe qì y se dice «chi». Para los sabios era como el aliento de la vida, que se mueve por todo el cuerpo.', chips: ['Su libro clásico, el Huangdi Neijing, tiene unos 2000 años'] },
-    enter(){ setLayers({ stars: 1, galaxy: .7, nebula: .6, body: 1, floor: 1, cosmic: 1 }); cam.k = 1.0; fullBody(); if (U.form.value < .99){ tw(U.form, 0, 0); later(700, () => tw(U.form, 1, reduced ? .1 : 6, easeInOut)); } later(VOICE.mode === 'tts' ? 30000 : 13500, () => showLabels(['han'])); },
+    enter(){ setLayers({ stars: 1, galaxy: .7, nebula: .6, body: 1, floor: 1, cosmic: 1 }); cam.k = 1.0; fullBody(); if (U.form.value < .99){ tw(U.form, 0, 0); later(700, () => tw(U.form, 1, reduced ? .1 : 6, easeInOut)); } later(VOICE.mode === 'mp3' ? 13500 : 30000, () => showLabels(['han'])); },
     cue(i, t){ if (/chi\./.test(t)) showLabels(['han']); } },
   { id: 's03-meridianos', lens: 'sabios', lensBody: 'sabios', chip: 'Mirada 1 · Los sabios de China', sway: true, drag: true, formed: true,
     fact: { eyebrow: 'Mirada 1 · La tradición china', title: 'Los meridianos <span class="han">经络</span>', body: 'Los sabios describieron 12 meridianos principales, que se repiten a cada lado del cuerpo. Aquí ves algunos, más dos líneas del centro.', chips: ['Un mapa del cuerpo dibujado hace siglos'] },
@@ -1344,7 +1372,7 @@ const SCENES = [
     fact: { eyebrow: 'Mirada 2 · La ciencia', title: 'Tus nervios', body: 'Los nervios son cables vivos. Cuando algo toca tu piel, mandan un mensaje eléctrico por la médula espinal hasta el cerebro.', chips: ['Algunos mensajes viajan a más de 100 metros por segundo', 'Endorfinas: calmantes que fabrica tu propio cuerpo'] },
     enter(){ setLayers({ stars: 1, galaxy: .3, nebula: .3, body: .85, floor: 1, nerves: 1, brain: 1, signal: 1, handT: 1, cosmic: 1 });
       camTo(isNarrow() ? new V3(.12, .25, 3.5) : new V3(.2, .24, 2.6), new V3(.12, .25, 0)); showLabels(['cerebro', 'medula', 'nervio']); this.fired = false;
-      later(6000, () => showHint('Toca la mano')); later(VOICE.mode === 'tts' ? 26000 : 11800, () => { if (!this.fired){ this.fired = true; fireSignal(); } }); },
+      later(6000, () => showHint('Toca la mano')); later(VOICE.mode === 'mp3' ? 11800 : 26000, () => { if (!this.fired){ this.fired = true; fireSignal(); } }); },
     cue(i, t){ if (/^Cuando una aguja/.test(t) && !this.fired){ this.fired = true; fireSignal(); } },
     tap(rc){ if (rc.intersectObject(handHit)[0]){ this.fired = true; fireSignal(); } } },
   { id: 's08-investigan', lens: 'ciencia', lensBody: 'ciencia', chip: 'Mirada 2 · Los científicos', sway: true, drag: true, formed: true, drawn: true,
@@ -1414,11 +1442,13 @@ function openNotes(toVoice){ ui.notes.hidden = false; if (curAudio && !curAudio.
 ui.adults.addEventListener('click', () => openNotes(false));
 $('#voiceLink').addEventListener('click', () => openNotes(true));
 const closeNotes = () => { ui.notes.hidden = true; if (HAS_TTS && speechSynthesis.paused && ui.notes.dataset.resume !== 't') speechSynthesis.cancel(); if (ui.notes.dataset.resume === 'a' && curAudio) curAudio.play().catch(() => {}); if (ui.notes.dataset.resume === 't') speechSynthesis.resume(); delete ui.notes.dataset.resume; (started ? ui.adults : ui.start).focus(); };
-$('#voiceSel').addEventListener('change', (e) => { const v = e.target.value; if (v === '__mp3'){ VOICE.forced = true; VOICE.mode = 'mp3'; } else { VOICE.forced = false; VOICE.sel = VOICE.list.find((x) => x.voiceURI === v) || VOICE.sel; VOICE.mode = VOICE.sel ? 'tts' : 'mp3'; } savePrefs(); delete ui.notes.dataset.resume; });
+$('#voiceSel').addEventListener('change', (e) => { VOICE.pick = e.target.value; refreshVoices(); savePrefs(); delete ui.notes.dataset.resume; });
 $('#rateSel').addEventListener('change', (e) => { VOICE.rate = +e.target.value || .95; savePrefs(); });
 $('#voiceTest').addEventListener('click', () => {
   delete ui.notes.dataset.resume; stopNarration();
-  if (VOICE.mode === 'tts' && VOICE.sel){ const tok = ++narrTok; speakParts(splitSentences(`¡Hola, ${NAME}! Así suena esta voz. ¿Te gusta?`), tok, null, null, null); }
+  const tok = ++narrTok;
+  if (VOICE.mode === 'rec' && REC['s01-universo']){ playRec('s01-universo', tok, null, null); const t = REC['s01-universo'][2]; setTimeout(() => { if (tok === narrTok) stopNarration(); }, t ? t * 1000 / (VOICE.rate / .95) : 4500); }
+  else if (VOICE.mode === 'tts' && VOICE.sel) speakParts(splitSentences(`¡Hola, ${NAME}! Así suena esta voz. ¿Te gusta?`), tok, null, null, null);
   else { const a = voice; curAudio = a; a.src = 'audio/s01-universo.mp3'; a.muted = false; a.play().catch(() => {}); }
 });
 ui.notesClose.addEventListener('click', closeNotes); ui.notes.addEventListener('click', (e) => { if (e.target === ui.notes) closeNotes(); });
@@ -1426,8 +1456,9 @@ addEventListener('keydown', (e) => { if (!ui.notes.hidden){ if (e.key === 'Escap
 document.addEventListener('visibilitychange', () => { if (document.hidden){ if (!voice.paused){ voice.pause(); resumeVoice = true; } if (HAS_TTS && speechSynthesis.speaking) speechSynthesis.pause(); if (actx) actx.suspend(); } else { if (actx) actx.resume(); if (resumeVoice){ resumeVoice = false; voice.play().catch(() => {}); } if (HAS_TTS && speechSynthesis.paused) speechSynthesis.resume(); } });
 ui.start.addEventListener('click', () => {
   if (started) return; started = true; document.body.classList.add('started'); initAudio();
-  if (HAS_TTS) refreshVoices();
-  if (VOICE.mode === 'mp3') for (const k in MP3_TEXT) getAudio(k);
+  refreshVoices();
+  if (VOICE.mode === 'rec') for (const k in REC) getAudio('audio/voz/' + k + '.mp3');
+  else if (VOICE.mode === 'mp3') for (const k in MP3_TEXT) getAudio('audio/' + k + '.mp3');
   if (actx && actx.state === 'suspended') actx.resume();
   ui.cover.classList.add('out'); setTimeout(() => { ui.cover.hidden = true; }, 1100);
   goTo(0);
