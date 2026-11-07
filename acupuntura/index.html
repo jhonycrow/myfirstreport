@@ -162,6 +162,14 @@ button:focus-visible,.fact:focus-visible{outline:3px solid var(--lens);outline-o
 .start-btn{margin-top:28px;height:70px;padding:0 36px;border-radius:999px;border:none;background:linear-gradient(90deg,var(--gold),var(--cyan));color:#070912;font:800 25px/1 var(--display);cursor:pointer;display:inline-flex;align-items:center;gap:12px}
 .start-btn svg{width:26px;height:26px}
 .small{margin:14px 0 0;font-size:13.5px;color:var(--muted);max-width:52ch}
+.link-btn{background:none;border:none;padding:4px 0;color:var(--violet);font:600 13.5px var(--body);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.caption .s{opacity:.5;transition:opacity .35s ease}
+.caption .s.now{opacity:1}
+.voice-set{margin:4px 0 18px;padding:16px 18px;border-radius:14px;background:rgba(184,162,255,.07);border:1px solid rgba(184,162,255,.3)}
+.voice-set h3{margin-top:0}
+.vrow{display:grid;grid-template-columns:96px 1fr;align-items:center;gap:10px;margin-bottom:10px}
+.vrow label{font:500 14px var(--body);color:#d7dcf4}
+.vrow select{min-width:0;width:100%;height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#121733;color:var(--text);font:500 14.5px var(--body)}
 .load-note{color:#ffd0c3}
 
 /* ---------- adult notes ---------- */
@@ -274,7 +282,7 @@ button:focus-visible,.fact:focus-visible{outline:3px solid var(--lens);outline-o
   </div>
   <p class="recap-note">Nadie ha probado que el qì y las partículas del espacio estén conectados. Son dos formas distintas de mirar el mundo, y las dos nacen de hacerse preguntas.</p>
   <p class="recap-warn">Las agujas solo las usa un acupunturista con formación. Nunca se juega con agujas en casa.</p>
-  <p class="recap-q">¿Qué quieres descubrir tú?</p>
+  <p class="recap-q">¿Qué quieres descubrir tú, Jero?</p>
 </section>
 
 <div class="dock">
@@ -297,7 +305,7 @@ button:focus-visible,.fact:focus-visible{outline:3px solid var(--lens);outline-o
 
 <div class="cover" id="cover">
   <div class="cover-inner">
-    <p class="eyebrow">Un viaje interactivo con voz</p>
+    <p class="eyebrow">Un viaje interactivo para Jero</p>
     <h1><span class="a">Agujas</span><span class="y">y</span><span class="b">Estrellas</span></h1>
     <p class="lede">Cómo imaginaban el cuerpo los sabios de la antigua China, qué encontraron los científicos y las partículas del espacio que te atraviesan sin que lo notes.</p>
     <div class="lenses"><span class="lens-tag s">Mirada 1 · Los sabios de China</span><span class="lens-tag c">Mirada 2 · Los científicos</span></div>
@@ -305,7 +313,7 @@ button:focus-visible,.fact:focus-visible{outline:3px solid var(--lens);outline-o
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 8 5.5z"/></svg>
       <span id="startLabel">Cargando…</span>
     </button>
-    <p class="small">Sube el volumen. Son 11 escenas, unos 5 minutos. Para exploradores desde 5 años, mejor junto a un adulto.</p>
+    <p class="small">Sube el volumen. Son 11 escenas, unos 5 minutos. Para exploradores desde 5 años, mejor junto a un adulto. <button class="link-btn" id="voiceLink" type="button">Elegir la voz</button></p>
   </div>
 </div>
 
@@ -316,6 +324,13 @@ button:focus-visible,.fact:focus-visible{outline:3px solid var(--lens);outline-o
     </button>
     <p class="eyebrow">Para quien acompaña al explorador</p>
     <h2 id="notesTitle">Qué es tradición y qué es evidencia</h2>
+    <section class="voice-set" id="voiceSet" aria-labelledby="voiceTitle">
+      <h3 id="voiceTitle" class="v">Voz de la narración</h3>
+      <div class="vrow"><label for="voiceSel">Voz</label><select id="voiceSel"></select></div>
+      <div class="vrow"><label for="rateSel">Velocidad</label><select id="rateSel"><option value="0.85">Más despacio</option><option value="0.95" selected>Normal</option><option value="1.05">Más rápido</option></select></div>
+      <button class="btn-ghost" id="voiceTest" type="button">Probar la voz</button>
+      <p class="small" id="voiceNote">La narración usa las voces en español de este dispositivo. En iPhone o iPad puedes descargar una más natural en Ajustes › Accesibilidad › Contenido leído › Voces › Español (por ejemplo «Paulina», versión mejorada). En Microsoft Edge aparecen voces «Natural» muy realistas, y en Chrome las voces «Google español».</p>
+    </section>
     <p>La experiencia separa a propósito dos miradas. La primera cuenta cómo la medicina tradicional china describe el cuerpo. La segunda cuenta lo que la ciencia ha medido. No se mezclan, para que tu hijo aprenda a distinguirlas.</p>
     <h3>Mirada 1 · La tradición</h3>
     <ul>
@@ -345,7 +360,7 @@ button:focus-visible,.fact:focus-visible{outline:3px solid var(--lens);outline-o
       <li>Particle Data Group, capítulo «Cosmic rays» de la Review of Particle Physics.</li>
       <li>UNESCO, Lista Representativa del Patrimonio Cultural Inmaterial de la Humanidad, 2010.</li>
     </ul>
-    <p class="small">La narración usa una voz sintética generada con IA. Los gráficos se dibujan en tiempo real con código 3D.</p>
+    <p class="small">Si el dispositivo no tiene voces en español, se usa una narración grabada con voz sintética de IA (sin el nombre de Jero). Los gráficos se dibujan en tiempo real con código 3D.</p>
   </div>
 </div>
 
@@ -371,7 +386,26 @@ import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 /* =========================================================================================
    TEXTOS (cada clave coincide con un archivo audio/<clave>.mp3)
    ========================================================================================= */
+const NAME = 'Jero';
 const NARRATION = {
+  's01-universo': `¡Hola, ${NAME}! ¡Mira cuántas estrellas! Hoy vamos a hacer un viaje increíble: desde el universo hasta adentro de tu cuerpo. Vamos a usar dos gafas mágicas: las gafas de los sabios de la antigua China, y las gafas de los científicos. ¿Listo? ¡Vamos!`,
+  's02-sabios': 'Hace más de dos mil años, en la antigua China, unos sabios miraban con mucha atención los ríos, el viento y la luna. Y se preguntaron: ¿qué hace que un cuerpo esté vivo? Ellos imaginaron una energía invisible que corre por dentro, y le pusieron un nombre cortito: chi.',
+  's03-meridianos': `Para los sabios, el chi viaja por caminos llamados meridianos, como ríos de luz por tus brazos, tus piernas y tu pancita. ¡Ellos contaban doce caminos principales! ${NAME}, toca los caminos dorados para verlos brillar.`,
+  's04-puntos': 'En esos caminos hay puntos especiales, como las estaciones de un tren. El acupunturista pone ahí unas agujas finitas, finitas, casi tan delgadas como un pelo. Se sienten como un piquetito. Toca un punto brillante para conocerlo.',
+  'p-mano': 'Este punto está en tu mano, entre el pulgar y el índice. Los sabios lo usaban para el dolor de cabeza.',
+  'p-muneca': 'Este está en tu muñeca, a tres deditos del pliegue. Lo usaban para el mareo, como cuando viajas en carro.',
+  'p-rodilla': 'Este está debajo de la rodilla. Se llama «tres millas», porque decían que daba fuerzas para seguir caminando.',
+  'p-cejas': 'Este punto está entre tus cejas. Los sabios lo usaban para ayudar a calmarse y a dormir mejor.',
+  's05-rio': `Para los sabios, cuando el chi corre tranquilo, te sientes bien. Pero si se atasca, como un río lleno de piedras, algo puede doler. Ellos decían que las agujas ayudaban a destaparlo. ¡Ayúdame, ${NAME}! Toca las piedras para quitarlas.`,
+  'rio-ok': `¡Lo lograste, ${NAME}! El río de luz corre otra vez.`,
+  's06-gafas': 'Ahora, ponte las gafas de científico. Los científicos buscaron los meridianos con microscopios y con máquinas muy poderosas, pero no los encontraron. Lo que sí encontraron es asombroso: ¡tus nervios!',
+  's07-nervios': `Los nervios son como cables finitos que llevan mensajes eléctricos al cerebro, ¡rapidísimo! Toca la mano, ${NAME}, para ver el mensaje. Cuando una aguja toca la piel, los nervios le avisan al cerebro. Y el cerebro suelta sus propias medicinas contra el dolor: se llaman endorfinas.`,
+  's08-investigan': 'Los científicos siguen investigando. Han visto que a algunas personas la acupuntura les ayuda con ciertos dolores, y que sentirse cuidado también ayuda. Así trabaja la ciencia: pregunta, prueba, y vuelve a probar.',
+  's09-sol': `¿Y la energía del universo? ¡Esa sí existe de verdad! El sol manda luz. Las plantas la atrapan y la guardan en frutas y verduras. Y cuando tú comes, tu cuerpo usa esa energía para correr, jugar y pensar. ¡Tienes un poquito de sol adentro, ${NAME}!`,
+  's10-particulas': 'Y hay algo que no podemos ver. Del espacio llegan partículas diminutas. Más o menos un muón atraviesa tu mano cada segundo, y cien billones de neutrinos pasan por tu cuerpo cada segundo. ¡No sientes nada, y no te hacen daño! Toca la pantalla para atraparlas.',
+  's11-final': `Los sabios de China imaginaron ríos de energía. Los científicos encontraron nervios, sol en tu comida y partículas del espacio. Nadie ha probado que el chi y esas partículas estén conectados, pero las dos miradas nacen de lo mismo: la curiosidad. Recuerda: las agujas solo las usa un acupunturista. Y ahora dime, ${NAME}: ¿qué quieres descubrir tú?`
+};
+const MP3_TEXT = { // lo que dicen los audios grabados (respaldo)
   's01-universo': '¡Hola, explorador! Mira cuántas estrellas. Hoy vamos a viajar desde el universo hasta adentro de tu cuerpo, con dos gafas mágicas: las de los sabios de la antigua China y las de los científicos.',
   's02-sabios': 'Hace más de dos mil años, en la antigua China, unos sabios observaban los ríos, el viento y la luna. Se preguntaron qué hace que un cuerpo esté vivo, e imaginaron una energía invisible: el chi.',
   's03-meridianos': 'Para ellos, el chi viaja por caminos llamados meridianos, como ríos de luz por tus brazos, tus piernas y tu pancita. Toca los caminos dorados.',
@@ -1050,21 +1084,72 @@ const PENTA = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66];
 const blip = (f = 880) => chime(f, { type: 'triangle', dur: .3, vol: .08 });
 function sparkle(){ [0, 2, 4, 5, 6].forEach((n, k) => chime(PENTA[n], { delay: k * .085, dur: 1.3, vol: .11 })); }
 function whoosh(){ if (!actx || muted) return; const t = actx.currentTime; const len = actx.sampleRate; const buf = actx.createBuffer(1, len, actx.sampleRate); const d = buf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1; const s = actx.createBufferSource(); s.buffer = buf; const f = actx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 1.4; f.frequency.setValueAtTime(260, t); f.frequency.exponentialRampToValueAtTime(2400, t + .7); const g = actx.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.12, t + .25); g.gain.exponentialRampToValueAtTime(.0001, t + .95); s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t + 1); }
-function narrate(id, onEnd){
-  stopNarration(); const tok = ++narrTok; const text = NARRATION[id]; setCaption(text);
-  const a = voice; curAudio = a; a.src = 'audio/' + id + '.mp3'; a.muted = muted;
-  duck(true);
-  let fell = false; const fallback = () => { if (tok !== narrTok || fell) return; fell = true; tts(text, tok, onEnd); };
+/* --- voz del dispositivo (Web Speech) con la mejor voz en español disponible; respaldo: audios grabados --- */
+const HAS_TTS = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+const VOICE = { list: [], sel: null, uri: null, rate: .95, mode: 'tts', forced: false };
+try { const pf = JSON.parse(localStorage.getItem('agujas-voz') || '{}'); VOICE.uri = pf.uri || null; VOICE.rate = +pf.rate || .95; if (pf.uri === '__mp3') VOICE.forced = true; } catch (e) {}
+function savePrefs(){ try { localStorage.setItem('agujas-voz', JSON.stringify({ uri: VOICE.forced ? '__mp3' : (VOICE.sel && VOICE.sel.voiceURI), rate: VOICE.rate })); } catch (e) {} }
+function scoreVoice(v){
+  const n = (v.name + ' ' + v.voiceURI).toLowerCase(), l = (v.lang || '').toLowerCase().replace('_', '-'); let sc = 0;
+  if (/natural|neural|premium|enhanced|mejorad|online|wavenet|studio/.test(n)) sc += 50;
+  if (/google/.test(n)) sc += 22;
+  if (/es-(mx|us|co|419|ar|cl|pe|ve|ec|uy)/.test(l)) sc += 10;
+  if (/paulina|m[oó]nica|dalia|salom|elvira|ximena|sabina|camila|valentina|helena|laura|luc[ií]a|paloma|marisol|isabel|elena|sof[ií]a|catalina|renata|larissa/.test(n)) sc += 8;
+  if (/compact|espeak|eloquence|grandma|grandpa|abuel|rocko|shelley|flo\b|reed|sandy|eddy|bad news|bells|bubbles|cellos|jester|organ|superstar|trinoids|whisper|zarvox|albert|bahh|boing|wobble/.test(n)) sc -= 60;
+  if (v.localService === false) sc += 4;
+  return sc;
+}
+function refreshVoices(){
+  if (!HAS_TTS) return;
+  const all = speechSynthesis.getVoices().filter((v) => /^es/i.test(v.lang || '')); all.sort((a, b) => scoreVoice(b) - scoreVoice(a));
+  VOICE.list = all; VOICE.sel = all.find((v) => v.voiceURI === VOICE.uri) || all[0] || null;
+  VOICE.mode = (!VOICE.forced && VOICE.sel) ? 'tts' : 'mp3';
+  fillVoiceUI();
+}
+function fillVoiceUI(){
+  const sel = $('#voiceSel'); if (!sel) return; sel.innerHTML = '';
+  for (const v of VOICE.list){ const o = document.createElement('option'); o.value = v.voiceURI; o.textContent = v.name.replace(/\s*\(.*?\)\s*$/, '') + ' · ' + v.lang; if (VOICE.mode === 'tts' && VOICE.sel === v) o.selected = true; sel.appendChild(o); }
+  const o = document.createElement('option'); o.value = '__mp3'; o.textContent = 'Voz grabada con IA (sin el nombre de Jero)'; if (VOICE.mode === 'mp3') o.selected = true; sel.appendChild(o);
+  if (!VOICE.list.length) $('#voiceNote').textContent = 'Este dispositivo no tiene voces en español, así que se usa la narración grabada. En iPhone o iPad puedes agregar una en Ajustes › Accesibilidad › Contenido leído › Voces › Español.';
+  const r = $('#rateSel'); if (r) r.value = String(VOICE.rate);
+}
+if (HAS_TTS){ refreshVoices(); speechSynthesis.onvoiceschanged = refreshVoices; }
+function splitSentences(t){ return (t.match(/[^.!?…]+[.!?…]+[»”"]?|[^.!?…]+$/g) || [t]).map((x) => x.trim()).filter(Boolean); }
+const keepUtter = [];
+function speakParts(parts, tok, onEnd, onCue, full){
+  let i = 0; duck(true);
+  const next = () => {
+    if (tok !== narrTok) return;
+    if (i >= parts.length){ duck(false); onEnd && onEnd(); return; }
+    const k = i, text = parts[k];
+    const u = new SpeechSynthesisUtterance(text); u.voice = VOICE.sel; u.lang = VOICE.sel.lang; u.rate = VOICE.rate; u.pitch = 1.06; u.volume = muted ? 0 : 1;
+    let done = false; const fin = (gap) => { if (done) return; done = true; clearTimeout(wd); i = k + 1; setTimeout(next, gap); };
+    u.onend = () => fin(160);
+    u.onerror = (e) => { if (e && (e.error === 'interrupted' || e.error === 'canceled')) return; fin(60); };
+    const wd = setTimeout(() => { if (tok === narrTok && !done){ done = true; speechSynthesis.cancel(); i = k + 1; setTimeout(next, 120); } }, (text.length / (9 * VOICE.rate) + 6) * 1000);
+    if (full) setCaption(full, parts, k); onCue && onCue(k, text);
+    keepUtter.push(u); if (keepUtter.length > 40) keepUtter.shift();
+    speechSynthesis.speak(u);
+  };
+  next();
+}
+function narrate(id, onEnd, onCue){
+  const wasBusy = HAS_TTS && (speechSynthesis.speaking || speechSynthesis.pending);
+  stopNarration(); const tok = ++narrTok;
+  if (VOICE.mode === 'tts' && VOICE.sel){
+    const text = NARRATION[id]; const parts = splitSentences(text); setCaption(text, parts, 0);
+    if (wasBusy) setTimeout(() => speakParts(parts, tok, onEnd, onCue, text), 90); else speakParts(parts, tok, onEnd, onCue, text);
+    return;
+  }
+  const text = MP3_TEXT[id];
+  if (!text){ setCaption(NARRATION[id]); onEnd && later(3500, onEnd); return; }
+  setCaption(text); onCue && onCue(-1, text);
+  const a = voice; curAudio = a; a.src = 'audio/' + id + '.mp3'; a.muted = muted; duck(true);
   a.onended = () => { if (tok !== narrTok) return; duck(false); onEnd && onEnd(); };
-  a.onerror = fallback;
-  const pr = a.play(); if (pr && pr.catch) pr.catch(fallback);
+  a.onerror = () => { if (tok !== narrTok) return; duck(false); onEnd && later(4000, onEnd, true); };
+  const pr = a.play(); if (pr && pr.catch) pr.catch(() => { if (tok === narrTok){ duck(false); onEnd && later(4000, onEnd, true); } });
 }
-function stopNarration(){ narrTok++; if (curAudio){ curAudio.pause(); curAudio.onended = curAudio.onerror = null; } if ('speechSynthesis' in window) speechSynthesis.cancel(); duck(false); }
-function tts(text, tok, onEnd){
-  if (!('speechSynthesis' in window)){ onEnd && later(4000, onEnd); return; }
-  const u = new SpeechSynthesisUtterance(text); u.lang = 'es-ES'; const v = speechSynthesis.getVoices().find((x) => /^es/i.test(x.lang)); if (v) u.voice = v;
-  u.rate = .95; u.pitch = 1.05; u.volume = muted ? 0 : 1; u.onend = () => { if (tok === narrTok){ duck(false); onEnd && onEnd(); } }; speechSynthesis.speak(u);
-}
+function stopNarration(){ narrTok++; if (curAudio){ curAudio.pause(); curAudio.onended = curAudio.onerror = null; } if (HAS_TTS) speechSynthesis.cancel(); duck(false); }
 
 /* =========================================================================================
    HUD
@@ -1086,7 +1171,11 @@ const MARKS = {
 const LENS_COLOR = { cosmos: col('#b8a2ff'), sabios: col('#f5bd4f'), ciencia: col('#5fd9ff'), ambas: col('#e8dcff') };
 const lensTarget = col('#b8a2ff');
 function setLens(l){ document.body.dataset.lens = l; lensTarget.copy(LENS_COLOR[l]); ui.chipMark.innerHTML = MARKS[l]; }
-function setCaption(t){ ui.caption.textContent = t; ui.caption.hidden = !captionsOn; }
+function setCaption(t, parts, k){
+  if (parts && parts.length > 1){ ui.caption.innerHTML = ''; parts.forEach((p, i) => { const sp = document.createElement('span'); sp.className = 's' + (i === k ? ' now' : ''); sp.textContent = p + ' '; ui.caption.appendChild(sp); }); }
+  else ui.caption.textContent = t;
+  ui.caption.hidden = !captionsOn;
+}
 function renderFact(f){
   if (!f){ ui.fact.hidden = true; return; }
   ui.fact.hidden = false; ui.fact.classList.add('swap');
@@ -1169,7 +1258,7 @@ function breakStone(i){
   fx.emit(wp, 18, { color: goldSpark, speed: .25, life: 1.2, size: 7, drag: 2 });
   const left = river.stones.filter((x) => x.alive).length; chime(PENTA[4 - left], { vol: .17 });
   stoneCounter();
-  if (!left){ river.free = true; later(700, () => { sparkle(); tw(U.pulse, .9, .4, easeOut, () => tw(U.pulse, 0, 1.6)); }); tw(riverMer.uGlow, 1, .6); }
+  if (!left){ river.free = true; later(700, () => { sparkle(); tw(U.pulse, .9, .4, easeOut, () => tw(U.pulse, 0, 1.6)); }); tw(riverMer.uGlow, 1, .6); later(1300, () => narrate('rio-ok', () => ui.next.classList.add('ready'))); }
 }
 let sigBusy = false;
 function fireSignal(){
@@ -1229,7 +1318,8 @@ const SCENES = [
     tap(){ shootingStar(); chime(PENTA[(rand() * 7) | 0], { vol: .1 }); } },
   { id: 's02-sabios', lens: 'sabios', lensBody: 'sabios', chip: 'Mirada 1 · Los sabios de China', sway: true, drag: true,
     fact: { eyebrow: 'Mirada 1 · La tradición china', title: 'El qì <span class="han">气</span>', body: 'Se escribe qì y se dice «chi». Para los sabios era como el aliento de la vida, que se mueve por todo el cuerpo.', chips: ['Su libro clásico, el Huangdi Neijing, tiene unos 2000 años'] },
-    enter(){ setLayers({ stars: 1, galaxy: .7, nebula: .6, body: 1, floor: 1, cosmic: 1 }); cam.k = 1.0; fullBody(); if (U.form.value < .99){ tw(U.form, 0, 0); later(700, () => tw(U.form, 1, reduced ? .1 : 6, easeInOut)); } later(13500, () => showLabels(['han'])); } },
+    enter(){ setLayers({ stars: 1, galaxy: .7, nebula: .6, body: 1, floor: 1, cosmic: 1 }); cam.k = 1.0; fullBody(); if (U.form.value < .99){ tw(U.form, 0, 0); later(700, () => tw(U.form, 1, reduced ? .1 : 6, easeInOut)); } later(VOICE.mode === 'tts' ? 30000 : 13500, () => showLabels(['han'])); },
+    cue(i, t){ if (/chi\./.test(t)) showLabels(['han']); } },
   { id: 's03-meridianos', lens: 'sabios', lensBody: 'sabios', chip: 'Mirada 1 · Los sabios de China', sway: true, drag: true, formed: true,
     fact: { eyebrow: 'Mirada 1 · La tradición china', title: 'Los meridianos <span class="han">经络</span>', body: 'Los sabios describieron 12 meridianos principales, que se repiten a cada lado del cuerpo. Aquí ves algunos, más dos líneas del centro.', chips: ['Un mapa del cuerpo dibujado hace siglos'] },
     enter(){ setLayers({ stars: 1, galaxy: .5, nebula: .5, body: 1, floor: 1, meridians: 1, merFlow: 1, cosmic: 1 }); fullBody(); if (U.draw.value < .999){ tw(U.draw, 0, 0); later(400, () => tw(U.draw, 1, reduced ? .1 : 5.5, easeInOut)); } later(6500, () => { showHint('Toca los caminos dorados · Arrastra para girar'); merCounter(); }); },
@@ -1254,7 +1344,8 @@ const SCENES = [
     fact: { eyebrow: 'Mirada 2 · La ciencia', title: 'Tus nervios', body: 'Los nervios son cables vivos. Cuando algo toca tu piel, mandan un mensaje eléctrico por la médula espinal hasta el cerebro.', chips: ['Algunos mensajes viajan a más de 100 metros por segundo', 'Endorfinas: calmantes que fabrica tu propio cuerpo'] },
     enter(){ setLayers({ stars: 1, galaxy: .3, nebula: .3, body: .85, floor: 1, nerves: 1, brain: 1, signal: 1, handT: 1, cosmic: 1 });
       camTo(isNarrow() ? new V3(.12, .25, 3.5) : new V3(.2, .24, 2.6), new V3(.12, .25, 0)); showLabels(['cerebro', 'medula', 'nervio']); this.fired = false;
-      later(6000, () => showHint('Toca la mano')); later(11800, () => { if (!this.fired){ this.fired = true; fireSignal(); } }); },
+      later(6000, () => showHint('Toca la mano')); later(VOICE.mode === 'tts' ? 26000 : 11800, () => { if (!this.fired){ this.fired = true; fireSignal(); } }); },
+    cue(i, t){ if (/^Cuando una aguja/.test(t) && !this.fired){ this.fired = true; fireSignal(); } },
     tap(rc){ if (rc.intersectObject(handHit)[0]){ this.fired = true; fireSignal(); } } },
   { id: 's08-investigan', lens: 'ciencia', lensBody: 'ciencia', chip: 'Mirada 2 · Los científicos', sway: true, drag: true, formed: true, drawn: true,
     fact: { eyebrow: 'Mirada 2 · La ciencia', title: 'Así trabaja la ciencia', body: 'Para saber si algo funciona, se comparan grupos de personas y las pruebas se repiten muchas veces.', chips: ['Hasta hoy: puede aliviar algunos dolores en algunas personas', 'Sentirse cuidado y esperar mejorar también ayuda'] },
@@ -1297,7 +1388,7 @@ function goTo(i){
   cam.goalShift = isWide() ? (cur.shift ?? .12) : 0; cam.goalShiftY = cur.id === 's01-universo' ? 0 : (isNarrow() ? .05 : .075);
   cur.enter();
   stopNarration(); setCaption(NARRATION[cur.id]);
-  const tok = sceneTok; const go = () => { if (tok === sceneTok && skipNarrTok !== tok) narrate(cur.id, () => { if (tok === sceneTok) ui.next.classList.add('ready'); }); };
+  const tok = sceneTok; const sc = cur; const go = () => { if (tok === sceneTok && skipNarrTok !== tok) narrate(sc.id, () => { if (tok === sceneTok) ui.next.classList.add('ready'); }, (k, t) => { if (tok === sceneTok && sc.cue) sc.cue(k, t); }); };
   if (cur.delay === 0) go(); else later(cur.delay ?? 900, go);
   if (i > 0 && i !== 5) whoosh();
 }
@@ -1313,20 +1404,30 @@ canvas.addEventListener('pointerup', endPtr); canvas.addEventListener('pointerca
 function handleTap(x, y){ if (!cur || !cur.tap) return; bodyRoot.updateMatrixWorld(true); const ndc = new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1); raycaster.setFromCamera(ndc, camera); cur.tap(raycaster, ndc); }
 ui.next.addEventListener('click', () => { if (idx >= SCENES.length - 1){ litKeys.clear(); foundPts.clear(); for (const m of meridians){ m.lit = false; m.uGlow.value = 0; } tw(U.form, 0, 0); tw(U.draw, 0, 0); goTo(0); } else goTo(idx + 1); });
 ui.prev.addEventListener('click', () => goTo(idx - 1));
-ui.replay.addEventListener('click', () => { if (!cur) return; const id = focused >= 0 ? points[focused].audio : cur.id; narrate(id, () => ui.next.classList.add('ready')); });
+ui.replay.addEventListener('click', () => { if (!cur) return; const id = focused >= 0 ? points[focused].audio : cur.id; const sc = cur; narrate(id, () => ui.next.classList.add('ready'), focused >= 0 ? null : (k, t) => { if (sc === cur && sc.cue) sc.cue(k, t); }); });
 ui.cc.addEventListener('click', () => { captionsOn = !captionsOn; ui.cc.setAttribute('aria-pressed', String(captionsOn)); ui.caption.hidden = !captionsOn; });
 ui.mute.addEventListener('click', () => { muted = !muted; ui.mute.setAttribute('aria-pressed', String(muted)); ui.mute.setAttribute('aria-label', muted ? 'Activar sonido' : 'Silenciar'); if (master) master.gain.setTargetAtTime(muted ? 0 : .9, actx.currentTime, .05); if (curAudio) curAudio.muted = muted; if (muted && 'speechSynthesis' in window) speechSynthesis.cancel();
   ui.muteIcon.innerHTML = muted ? '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 5 6M21 9l-5 6"/>' : '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>'; });
 ui.pcBack.addEventListener('click', () => unfocusPoint(false));
 ui.fact.addEventListener('click', () => { if (isNarrow()) ui.fact.classList.toggle('open'); });
-ui.adults.addEventListener('click', () => { ui.notes.hidden = false; if (curAudio && !curAudio.paused){ curAudio.pause(); ui.notes.dataset.resume = '1'; } ui.notesClose.focus(); });
-const closeNotes = () => { ui.notes.hidden = true; if (ui.notes.dataset.resume && curAudio){ curAudio.play().catch(() => {}); } delete ui.notes.dataset.resume; ui.adults.focus(); };
+function openNotes(toVoice){ ui.notes.hidden = false; if (curAudio && !curAudio.paused){ curAudio.pause(); ui.notes.dataset.resume = 'a'; } else if (HAS_TTS && speechSynthesis.speaking){ speechSynthesis.pause(); ui.notes.dataset.resume = 't'; } if (toVoice) $('#voiceSet').scrollIntoView({ block: 'start' }); ui.notesClose.focus(); }
+ui.adults.addEventListener('click', () => openNotes(false));
+$('#voiceLink').addEventListener('click', () => openNotes(true));
+const closeNotes = () => { ui.notes.hidden = true; if (HAS_TTS && speechSynthesis.paused && ui.notes.dataset.resume !== 't') speechSynthesis.cancel(); if (ui.notes.dataset.resume === 'a' && curAudio) curAudio.play().catch(() => {}); if (ui.notes.dataset.resume === 't') speechSynthesis.resume(); delete ui.notes.dataset.resume; (started ? ui.adults : ui.start).focus(); };
+$('#voiceSel').addEventListener('change', (e) => { const v = e.target.value; if (v === '__mp3'){ VOICE.forced = true; VOICE.mode = 'mp3'; } else { VOICE.forced = false; VOICE.sel = VOICE.list.find((x) => x.voiceURI === v) || VOICE.sel; VOICE.mode = VOICE.sel ? 'tts' : 'mp3'; } savePrefs(); delete ui.notes.dataset.resume; });
+$('#rateSel').addEventListener('change', (e) => { VOICE.rate = +e.target.value || .95; savePrefs(); });
+$('#voiceTest').addEventListener('click', () => {
+  delete ui.notes.dataset.resume; stopNarration();
+  if (VOICE.mode === 'tts' && VOICE.sel){ const tok = ++narrTok; speakParts(splitSentences(`¡Hola, ${NAME}! Así suena esta voz. ¿Te gusta?`), tok, null, null, null); }
+  else { const a = voice; curAudio = a; a.src = 'audio/s01-universo.mp3'; a.muted = false; a.play().catch(() => {}); }
+});
 ui.notesClose.addEventListener('click', closeNotes); ui.notes.addEventListener('click', (e) => { if (e.target === ui.notes) closeNotes(); });
 addEventListener('keydown', (e) => { if (!ui.notes.hidden){ if (e.key === 'Escape') closeNotes(); return; } if (!started) return; if (e.key === 'ArrowRight') ui.next.click(); if (e.key === 'ArrowLeft' && idx > 0) goTo(idx - 1); });
-document.addEventListener('visibilitychange', () => { if (document.hidden){ if (!voice.paused){ voice.pause(); resumeVoice = true; } if (actx) actx.suspend(); } else { if (actx) actx.resume(); if (resumeVoice){ resumeVoice = false; voice.play().catch(() => {}); } } });
+document.addEventListener('visibilitychange', () => { if (document.hidden){ if (!voice.paused){ voice.pause(); resumeVoice = true; } if (HAS_TTS && speechSynthesis.speaking) speechSynthesis.pause(); if (actx) actx.suspend(); } else { if (actx) actx.resume(); if (resumeVoice){ resumeVoice = false; voice.play().catch(() => {}); } if (HAS_TTS && speechSynthesis.paused) speechSynthesis.resume(); } });
 ui.start.addEventListener('click', () => {
   if (started) return; started = true; document.body.classList.add('started'); initAudio();
-  for (const k in NARRATION) getAudio(k);
+  if (HAS_TTS) refreshVoices();
+  if (VOICE.mode === 'mp3') for (const k in MP3_TEXT) getAudio(k);
   if (actx && actx.state === 'suspended') actx.resume();
   ui.cover.classList.add('out'); setTimeout(() => { ui.cover.hidden = true; }, 1100);
   goTo(0);
@@ -1389,7 +1490,7 @@ function frame(){
 }
 requestAnimationFrame(frame);
 window.__agujasReady = true;
-if (location.search.indexOf('debug') >= 0) window.__agujas = { voice, goTo, focusPoint, breakStone, fireSignal, lightMeridian, burstPhotons, shower, meridians, U, get idx(){ return idx; } };
+if (location.search.indexOf('debug') >= 0) window.__agujas = { VOICE, voice, goTo, focusPoint, breakStone, fireSignal, lightMeridian, burstPhotons, shower, meridians, U, get idx(){ return idx; } };
 ui.start.disabled = false; ui.startLabel.textContent = 'Empezar el viaje';
 </script>
 </body>
